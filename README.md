@@ -35,7 +35,7 @@ Documentação dos testes
 1. Peso da Separação = 0
 Comportamento Observado: Ao zerar o peso da separação, os agentes perdem a restrição de distância mínima individual. O bando entra em colapso e todos os boids colidem e se aglomeram em pontos densos que lentamente convergem pra se tornarem um só.
 
-![Teste de Separação Zero](./Images/separacao0.png)
+![Teste de Separação Zero](Images/separacao0.png)
 
 2. Peso do Alinhamento = 0
 Comportamento Observado: Sem a regra de alinhamento, os agentes continuam mantendo distância e coesão, mas perdem a navegação harmônica em conjunto. O bando se transforma em um enxame caótico, sem direção coletiva definida.
