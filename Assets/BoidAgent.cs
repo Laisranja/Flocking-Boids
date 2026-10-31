@@ -41,102 +41,104 @@ public class BoidAgent : MonoBehaviour
 
         acceleration = Vector3.zero;
 
-        Vector3 separationSum = Vector3.zero;
-        Vector3 alignmentSum = Vector3.zero;
-        Vector3 cohesionSum = Vector3.zero;
-        int neighborCount = 0;
-        int separationCount = 0;
-
-        // FUGA DO PREDADOR
-        if (Predator.Instance != null)
+        // 1. DESVIO DE OBSTÁCULOS (PRIORIDADE MÁXIMA)
+        Vector3 obstacleAvoidance = CalculateObstacleAvoidance();
+        if (obstacleAvoidance != Vector3.zero)
         {
-            Vector3 toPredator = Predator.Instance.transform.position - transform.position;
-            toPredator.y = 0f; // Manter no plano XZ
-            float distToPredator = toPredator.magnitude;
-
-            if (distToPredator < predatorAvoidDistance && distToPredator > 0f)
-            {
-                // Direção oposta ao predador
-                Vector3 fleeDir = -toPredator.normalized;
-
-                // Força inversamente proporcional à distância
-                Vector3 fleeForce = Steer(fleeDir * maxSpeed) * (predatorAvoidWeight * (1f - distToPredator / predatorAvoidDistance));
-                acceleration += fleeForce;
-            }
+            // Se houver um obstáculo iminente, o boid foca em desviar
+            acceleration = obstacleAvoidance * manager.obstacleWeight * 2f;
         }
-
-        // BUSCA VIA SPATIAL GRID
-        Vector3 pos = transform.position;
-        int currentCellX = Mathf.FloorToInt(pos.x / manager.cellSize);
-        int currentCellZ = Mathf.FloorToInt(pos.z / manager.cellSize);
-
-        float neighborRadiusSqr = manager.neighborRadius * manager.neighborRadius;
-        float separationRadiusSqr = manager.separationRadius * manager.separationRadius;
-
-        // Varre a célula atual e as 8 células vizinhas ao redor (3x3 grid no plano XZ)
-        for (int x = -1; x <= 1; x++)
+        else
         {
-            for (int z = -1; z <= 1; z++)
+            // 2. FUGA DO PREDADOR
+            if (Predator.Instance != null)
             {
-                Vector3Int neighborCell = new Vector3Int(currentCellX + x, 0, currentCellZ + z);
+                Vector3 toPredator = Predator.Instance.transform.position - transform.position;
+                toPredator.y = 0f;
+                float distToPredator = toPredator.magnitude;
 
-                if (manager.spatialGrid.TryGetValue(neighborCell, out List<BoidAgent> cellAgents))
+                if (distToPredator < predatorAvoidDistance && distToPredator > 0f)
                 {
-                    foreach (var other in cellAgents)
+                    Vector3 fleeDir = -toPredator.normalized;
+                    Vector3 fleeForce = Steer(fleeDir * maxSpeed) * (predatorAvoidWeight * (1f - distToPredator / predatorAvoidDistance));
+                    acceleration += fleeForce;
+                }
+            }
+
+            // 3. REGRAS DE FLOCKING VIA SPATIAL GRID
+            Vector3 pos = transform.position;
+            int currentCellX = Mathf.FloorToInt(pos.x / manager.cellSize);
+            int currentCellZ = Mathf.FloorToInt(pos.z / manager.cellSize);
+
+            float neighborRadiusSqr = manager.neighborRadius * manager.neighborRadius;
+            float separationRadiusSqr = manager.separationRadius * manager.separationRadius;
+
+            Vector3 separationSum = Vector3.zero;
+            Vector3 alignmentSum = Vector3.zero;
+            Vector3 cohesionSum = Vector3.zero;
+            int neighborCount = 0;
+            int separationCount = 0;
+
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int z = -1; z <= 1; z++)
+                {
+                    Vector3Int neighborCell = new Vector3Int(currentCellX + x, 0, currentCellZ + z);
+
+                    if (manager.spatialGrid.TryGetValue(neighborCell, out List<BoidAgent> cellAgents))
                     {
-                        if (other == null || other == this) continue;
-
-                        Vector3 toOther = other.transform.position - transform.position;
-                        toOther.y = 0f;
-                        float dSqr = toOther.sqrMagnitude;
-
-                        if (dSqr > 0 && dSqr < neighborRadiusSqr)
+                        foreach (var other in cellAgents)
                         {
-                            alignmentSum += other.velocity;
-                            cohesionSum += other.transform.position;
-                            neighborCount++;
+                            if (other == null || other == this) continue;
 
-                            if (dSqr < separationRadiusSqr)
+                            Vector3 toOther = other.transform.position - transform.position;
+                            toOther.y = 0f;
+                            float dSqr = toOther.sqrMagnitude;
+
+                            if (dSqr > 0 && dSqr < neighborRadiusSqr)
                             {
-                                float dist = Mathf.Sqrt(dSqr);
-                                Vector3 repulseDir = (transform.position - other.transform.position).normalized;
-                                separationSum += repulseDir / (dist * dist);
-                                separationCount++;
+                                alignmentSum += other.velocity;
+                                cohesionSum += other.transform.position;
+                                neighborCount++;
+
+                                if (dSqr < separationRadiusSqr)
+                                {
+                                    float dist = Mathf.Sqrt(dSqr);
+                                    Vector3 repulseDir = (transform.position - other.transform.position).normalized;
+                                    separationSum += repulseDir / (dist * dist);
+                                    separationCount++;
+                                }
                             }
                         }
                     }
                 }
             }
+
+            Vector3 forceSeparation = Vector3.zero;
+            Vector3 forceAlignment = Vector3.zero;
+            Vector3 forceCohesion = Vector3.zero;
+
+            if (separationCount > 0)
+            {
+                separationSum /= separationCount;
+                forceSeparation = Steer(separationSum.normalized * maxSpeed) * manager.separationWeight;
+            }
+
+            if (neighborCount > 0)
+            {
+                alignmentSum /= neighborCount;
+                forceAlignment = Steer(alignmentSum.normalized * maxSpeed) * manager.alignmentWeight;
+
+                cohesionSum /= neighborCount;
+                Vector3 cohesionDir = cohesionSum - transform.position;
+                cohesionDir.y = 0f;
+                forceCohesion = Steer(cohesionDir.normalized * maxSpeed) * manager.cohesionWeight;
+            }
+
+            acceleration += forceSeparation + forceAlignment + forceCohesion;
         }
 
-        Vector3 forceSeparation = Vector3.zero;
-        Vector3 forceAlignment = Vector3.zero;
-        Vector3 forceCohesion = Vector3.zero;
-
-        if (separationCount > 0)
-        {
-            separationSum /= separationCount;
-            forceSeparation = Steer(separationSum.normalized * maxSpeed) * manager.separationWeight;
-        }
-
-        if (neighborCount > 0)
-        {
-            alignmentSum /= neighborCount;
-            forceAlignment = Steer(alignmentSum.normalized * maxSpeed) * manager.alignmentWeight;
-
-            cohesionSum /= neighborCount;
-            Vector3 cohesionDir = cohesionSum - transform.position;
-            cohesionDir.y = 0f;
-            forceCohesion = Steer(cohesionDir.normalized * maxSpeed) * manager.cohesionWeight;
-        }
-
-        acceleration += forceSeparation + forceAlignment + forceCohesion;
-
-        // Desvio de Obstáculos
-        Vector3 obstacleAvoidance = CalculateObstacleAvoidance();
-        acceleration += obstacleAvoidance * manager.obstacleWeight;
-
-        // Retorno ao Mundo
+        // 4. RETORNO AOS LIMITES DO MUNDO
         Vector3 worldBoundaryForce = CalculateWorldBoundary();
         acceleration += worldBoundaryForce;
 

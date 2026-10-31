@@ -76,11 +76,13 @@ MonoBehaviour:
   manager: {fileID: 0}
   boidLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   maxSpeed: 6
   minSpeed: 3
   maxForce: 12
   rotationSpeed: 10
+  predatorAvoidDistance: 8
+  predatorAvoidWeight: 5
   obstacleCheckDistance: 4
   obstacleLayer:
     serializedVersion: 2
