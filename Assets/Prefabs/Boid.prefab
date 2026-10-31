@@ -77,7 +77,7 @@ MonoBehaviour:
   boidLayer:
     serializedVersion: 2
     m_Bits: 64
-  maxSpeed: 6
+  maxSpeed: 5
   minSpeed: 3
   maxForce: 12
   rotationSpeed: 10

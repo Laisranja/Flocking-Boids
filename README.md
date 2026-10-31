@@ -21,12 +21,12 @@ A tabela abaixo detalha os parâmetros e pesos finais configurados no inspetor d
 
 | Parâmetro | Valor Final | Descrição |
 | :--- | :---: | :--- |
-| **Peso da Separação** | *[Inserir Valor]* | Evita a sobreposição e colisões muito próximas entre os boids. |
-| **Peso do Alinhamento** | *[Inserir Valor]* | Sincroniza a direção e o vetor de movimento dos agentes vizinhos. |
-| **Peso da Coesão** | *[Inserir Valor]* | Atrai os boids para o centro de massa do grupo vizinho. |
-| **Raio de Percepção (Neighborhood Radius)** | *[Inserir Valor]* | Distância máxima que cada boid utiliza para detetar os seus vizinhos. |
-| **Velocidade Máxima (`maxSpeed`)** | *[Inserir Valor]* | Limite superior de velocidade de deslocamento dos agentes. |
-| **Força Máxima (`maxForce`)** | *[Inserir Valor]* | Limite da força de aceleração aplicada nas mudanças de direção. |
+| **Peso da Separação** | *[1.5]* | Evita a sobreposição e colisões muito próximas entre os boids. |
+| **Peso do Alinhamento** | *[1.0]* | Sincroniza a direção e o vetor de movimento dos agentes vizinhos. |
+| **Peso da Coesão** | *[1.0]* | Atrai os boids para o centro de massa do grupo vizinho. |
+| **Raio de Percepção (Neighborhood Radius)** | *[5.0]* | Distância máxima que cada boid utiliza para detetar os seus vizinhos. |
+| **Velocidade Máxima (`maxSpeed`)** | *[5.0]* | Limite superior de velocidade de deslocamento dos agentes. |
+| **Força Máxima (`maxForce`)** | *[12]* | Limite da força de aceleração aplicada nas mudanças de direção. |
 
 Documentação dos testes
 
