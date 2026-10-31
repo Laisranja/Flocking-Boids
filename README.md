@@ -35,23 +35,23 @@ Documentação dos testes
 1. Peso da Separação = 0
 Comportamento Observado: Ao zerar o peso da separação, os agentes perdem a restrição de distância mínima individual. O bando entra em colapso e todos os boids colidem e se aglomeram em pontos densos que lentamente convergem pra se tornarem um só.
 
-![Teste de Separação Zero](./images/separacao0.png)
+![Teste de Separação Zero](./Images/separacao0.png)
 
 2. Peso do Alinhamento = 0
 Comportamento Observado: Sem a regra de alinhamento, os agentes continuam mantendo distância e coesão, mas perdem a navegação harmônica em conjunto. O bando se transforma em um enxame caótico, sem direção coletiva definida.
 
-![Teste de Alinhamento](./images/alinhamento0.png)
+![Teste de Alinhamento](./Images/alinhamento0.png)
 
 3. Raio de Percepção (0.5 vs 5.0)
 Raio de Percepção = 0.5: Os agentes têm campo de visão extremamente limitado, incapazes de detectar vizinhos próximos. O bando se fragmenta em indivíduos isolados ou pequenos grupos perdidos.
 
-![Teste Raio Reduzido](./images/percepcao05.png)
+![Teste Raio Reduzido](./Images/percepcao05.png)
 
 Raio de Percepção = 5.0: Permite a comunicação fluida entre uma quantidade ideal de vizinhos, formando bandos mais unificados e orgânicos.
 
-![Teste Raio Comum](./images/percepcao5.png)
+![Teste Raio Comum](./Images/percepcao5.png)
 
 4. Reação ao Predador
 Comportamento Observado:Quando o predador se aproxima do grupo, a força de fuga com peso elevado faz com que os boids se dispersem, abrindo caminho para contornar a ameaça e se reagrupando logo após sua passagem.
 
-![GIF da Simulação](./images/predator.gif)
+![GIF da Simulação](./Images/predator.gif)
